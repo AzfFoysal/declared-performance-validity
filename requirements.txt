@@ -1,0 +1,4 @@
+numpy>=1.24
+scipy>=1.10
+pytest>=7
+# thesis_integration/export_outputs.py also needs torch and torchvision (GPU machine)

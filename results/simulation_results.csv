@@ -1,0 +1,19 @@
+scenario,policy,false_alarm_rate,detection_rate,median_delay_items,mean_audits
+no_shift,fixed 1%,0.0,,,200.43333333333334
+no_shift,two-tier 1% -> 10%,0.0,,,239.93333333333334
+no_shift,fixed 10%,0.0,,,1999.7233333333334
+boundary,fixed 1%,0.0,,,201.19666666666666
+boundary,two-tier 1% -> 10%,0.013333333333333334,,,1726.66
+boundary,fixed 10%,0.02,,,1979.3733333333332
+abrupt_covariate,fixed 1%,0.0,0.9866666666666667,6531.5,118.49333333333334
+abrupt_covariate,two-tier 1% -> 10%,0.0,1.0,878.0,129.99
+abrupt_covariate,fixed 10%,0.0,1.0,893.5,596.08
+gradual_covariate,fixed 1%,0.0,0.5633333333333334,10936.0,187.84666666666666
+gradual_covariate,two-tier 1% -> 10%,0.0,1.0,4300.5,545.4966666666667
+gradual_covariate,fixed 10%,0.0,1.0,4506.0,1157.28
+mild_covariate,fixed 1%,0.0,0.016666666666666666,11557.0,199.63333333333333
+mild_covariate,two-tier 1% -> 10%,0.0,0.48333333333333334,8621.0,1215.7966666666666
+mild_covariate,fixed 10%,0.0,0.52,8190.0,1646.1333333333334
+abrupt_concept,fixed 1%,0.0,0.9966666666666667,6224.0,116.3
+abrupt_concept,two-tier 1% -> 10%,0.0,0.9933333333333333,5720.0,129.85666666666665
+abrupt_concept,fixed 10%,0.0,1.0,928.5,596.1466666666666
