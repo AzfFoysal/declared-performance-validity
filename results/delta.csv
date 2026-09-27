@@ -1,0 +1,7 @@
+delta,scenario,false_alarm_rate,detection_rate,median_delay,q25_delay,q75_delay,mean_labels
+0.01,abrupt_covariate,0.0,1.0,1110.5,888.5,1350.25,150.675
+0.01,boundary,0.0033333333333333335,,nan,nan,nan,1738.83
+0.05,abrupt_covariate,0.0,1.0,881.0,717.5,1091.25,125.785
+0.05,boundary,0.02666666666666667,,nan,nan,nan,1719.73
+0.1,abrupt_covariate,0.0,1.0,792.0,627.75,968.25,118.955
+0.1,boundary,0.056666666666666664,,nan,nan,nan,1682.7

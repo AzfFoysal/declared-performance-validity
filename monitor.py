@@ -96,40 +96,64 @@ class AuditPolicy:
     two_tier: bool = True
     check_every: int = 250        # Tier 1 re-estimates accuracy every this many items
     lookback: int = 500           # unlabeled items used per Tier 1 estimate
+    reference: float | None = None  # relative trigger: alarm when the Tier 1 estimate falls
+                                    # more than `tolerance` below its own value on the
+                                    # provider's clean test data (cancels estimator bias).
+                                    # None = absolute trigger at the violation level.
 
 
 def run_stream(conf: np.ndarray, correct: np.ndarray, *, declared_acc: float,
                tolerance: float, delta: float, atc: ATCEstimator,
-               policy: AuditPolicy, rng: np.random.Generator) -> dict:
+               policy: AuditPolicy, rng: np.random.Generator,
+               label_delay: int = 0, trace: bool = False) -> dict:
     """Run the two-tier monitor over a deployment stream.
 
-    conf[t]    model confidence (max softmax) for item t, always observed
-    correct[t] 1 if the prediction is right; only read for audited items
-    Returns the rejection time (in stream items), audits used, and Tier 1 alert times.
+    conf[t]     model confidence (max softmax) for item t, always observed
+    correct[t]  1 if the prediction is right; only read for audited items
+    label_delay the label of an item audited at time t becomes available at t + label_delay
+    Returns the rejection time (in stream items), labels used up to rejection, Tier 1
+    alert times and, if trace=True, the audit-rate, ATC and wealth trajectories.
+
+    Tier 1 reads only unlabeled confidences, so the audit schedule never depends on
+    audited labels. We therefore draw the whole schedule first and then feed audited
+    losses to Tier 2 in the order their labels arrive. This is identical in
+    distribution to running both tiers online.
     """
     eps_star = (1.0 - declared_acc) + tolerance
     mon = BettingRiskMonitor(eps_star=eps_star, delta=delta)
     rate = policy.base_rate
-    audits, alerts = 0, []
+    alerts, rates, ests, audit_times = [], [], [], []
     T = len(conf)
     B = policy.check_every
-    # The audit rate is constant within each block of B items, so we draw the audit
-    # mask per block. Identical in distribution to deciding item by item.
     for start in range(0, T, B):
-        # Tier 1: decided from PAST unlabeled items only
+        est = None
         if policy.two_tier and start >= policy.lookback:
             est = atc.estimate(conf[start - policy.lookback:start])
-            alarm = est < 1.0 - eps_star
+            level = (policy.reference - tolerance) if policy.reference is not None \
+                else 1.0 - eps_star
+            alarm = est < level
             if alarm and rate != policy.alert_rate:
                 alerts.append(start)
             rate = policy.alert_rate if alarm else policy.base_rate
-        # Tier 2: audit each item with probability `rate`, independent of its features
+        rates.append((start, rate)); ests.append((start, est))
         idx = np.arange(start, min(start + B, T))
-        audited = idx[rng.random(len(idx)) < rate]
-        for t in audited:
-            audits += 1
-            if mon.update(1.0 - float(correct[t])):
-                return {"rejected_at": int(t), "audits": audits, "alerts": alerts,
-                        "wealth": mon.wealth, "eps_star": eps_star}
-    return {"rejected_at": None, "audits": audits, "alerts": alerts,
-            "wealth": mon.wealth, "eps_star": eps_star}
+        audit_times.extend(idx[rng.random(len(idx)) < rate].tolist())
+
+    wealth_trace = []
+    rejected_at, used = None, 0
+    for t in audit_times:                      # labels arrive in audit order + fixed delay
+        arrival = t + label_delay
+        if arrival >= T:
+            break
+        used += 1
+        done = mon.update(1.0 - float(correct[t]))
+        if trace:
+            wealth_trace.append((arrival, mon.wealth))
+        if done:
+            rejected_at = int(arrival)
+            break
+    out = {"rejected_at": rejected_at, "audits": used, "alerts": alerts,
+           "wealth": mon.wealth, "eps_star": eps_star}
+    if trace:
+        out.update({"rates": rates, "atc": ests, "wealth_trace": wealth_trace})
+    return out

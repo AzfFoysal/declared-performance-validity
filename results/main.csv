@@ -1,0 +1,19 @@
+scenario,policy,false_alarm_rate,detection_rate,median_delay,q25_delay,q75_delay,mean_labels
+no_shift,fixed 1%,0.0,,nan,nan,nan,200.97333333333333
+no_shift,two-tier 1% -> 10%,0.0,,nan,nan,nan,237.17
+no_shift,fixed 10%,0.0,,nan,nan,nan,2000.6666666666667
+boundary,fixed 1%,0.0033333333333333335,,nan,nan,nan,200.73
+boundary,two-tier 1% -> 10%,0.01,,nan,nan,nan,1734.56
+boundary,fixed 10%,0.03,,nan,nan,nan,1963.21
+abrupt_covariate,fixed 1%,0.0,1.0,6417.0,4744.0,8626.5,118.30333333333333
+abrupt_covariate,two-tier 1% -> 10%,0.0,1.0,873.5,732.25,1049.5,127.54
+abrupt_covariate,fixed 10%,0.0,1.0,934.0,754.5,1120.25,592.9233333333333
+gradual_covariate,fixed 1%,0.0,0.5766666666666667,10471.0,9194.0,11705.0,184.94333333333333
+gradual_covariate,two-tier 1% -> 10%,0.0,1.0,4500.5,3965.5,5027.25,566.4033333333333
+gradual_covariate,fixed 10%,0.0,1.0,4480.0,3856.5,5067.25,1157.3633333333332
+mild_covariate,fixed 1%,0.0,0.02,12585.0,9757.25,13735.0,200.55
+mild_covariate,two-tier 1% -> 10%,0.0,0.5033333333333333,8416.0,5584.0,11066.0,1202.49
+mild_covariate,fixed 10%,0.0,0.44,8125.0,5295.75,10679.25,1701.4733333333334
+abrupt_concept,fixed 1%,0.0,0.9933333333333333,6207.0,4311.25,8280.75,115.13666666666667
+abrupt_concept,two-tier 1% -> 10%,0.0,0.9933333333333333,5476.5,4132.0,7736.25,130.20333333333335
+abrupt_concept,fixed 10%,0.0,1.0,909.5,779.75,1143.25,597.42

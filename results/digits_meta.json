@@ -1,0 +1,10 @@
+{
+  "n_train": 898,
+  "n_val": 359,
+  "n_test": 540,
+  "declared_accuracy": 0.9722222222222222,
+  "violation_level": 0.9522222222222222,
+  "atc_threshold": 0.7138540940813513,
+  "atc_reference": 0.95,
+  "val_accuracy": 0.9693593314763231
+}

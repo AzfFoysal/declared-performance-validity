@@ -13,7 +13,10 @@ A declaration is valid until a pre-registered sequential test on randomly audite
 | Path | What it is |
 | --- | --- |
 | `monitor.py` | Betting risk monitor (Tier 2), ATC estimator (Tier 1), audit policy, stream runner |
-| `simulate.py` | Simulation study: 6 scenarios x 3 audit policies x 300 runs |
+| `simulate.py` | Stylised classifier and scenario definitions used by the simulations |
+| `experiments.py` | All simulation experiments in the paper (main table, sensitivity, label delay, effect size, false-alarm level, trajectories) |
+| `case_digits.py` | Real-classifier study: neural network on UCI handwritten digits under sensor noise, blur, camera shift, gradual noise and a labeling-convention change |
+| `figures.py` | Paper figures from the results files |
 | `case_study.py` | Runs the monitor on real model outputs (`outputs.npz`) |
 | `thesis_integration/export_outputs.py` | Exports 27-class aligned predictions from the plant-disease thesis model (PlantVillage to PlantDoc) |
 | `results/simulation_results.csv` | Output of `simulate.py` |
@@ -25,7 +28,9 @@ A declaration is valid until a pre-registered sequential test on randomly audite
 ```bash
 pip install -r requirements.txt
 python -m pytest -q          # 7 tests, about 20 seconds
-python simulate.py           # about 2 minutes; writes results/simulation_results.csv
+python experiments.py        # about 3 minutes on 2 cores; writes results/*.csv
+python case_digits.py        # about 6 minutes; writes results/digits*.{csv,json}
+python figures.py            # writes paper/figures/*.pdf
 ```
 
 ## Simulation results
@@ -43,7 +48,21 @@ Declared accuracy 96.3%, tolerance 2 points (violation below 94.3%), delta = 0.0
 
 Under covariate shift the two-tier design matches the 10% policy's delay with 22% to 47% of its labels. Under concept drift, where confidence does not change, the label-free tier is blind and detection relies on the 1% random-audit floor, which is why that floor must stay above zero.
 
-## Case study (in progress)
+## Real-classifier results (results/digits.csv)
+
+Declared accuracy 97.2% (clean test set), violation level 95.2%, 300 runs per condition. No policy raised a false alarm in any condition. Median items to invalidation (mean labels):
+
+| Condition | Deployed | Fixed 1% | Two-tier, relative trigger | Fixed 10% |
+| --- | --- | --- | --- | --- |
+| Sensor noise | 79.8% | 6,494 (118) | 885 (128) | 918 (593) |
+| Focus drift | 84.9% | 9,046 (153) | 1,282 (172) | 1,354 (642) |
+| Camera shift, 1 px | 46.5% | 1,801 (69) | 412 (78) | 306 (531) |
+| Gradual noise | 66.3% | 8,053 (161) | 3,191 (392) | 3,131 (1,114) |
+| Labeling convention (concept drift) | 77.7% | 5,591 (105) | 4,902 (118) | 881 (586) |
+
+The relative trigger compares the label-free estimate with its own reading on clean test data; an absolute trigger fired constantly on clean data because the estimator read 2 points low, which cost labels but never produced a false finding.
+
+## Plant-disease case study (in progress)
 
 On the machine that holds the trained model and data, from the root of the thesis repository:
 
