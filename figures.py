@@ -24,9 +24,9 @@ plt.rcParams.update({
 })
 
 
-def fig_trajectory():
+def fig_trajectory(figsize=(3.4, 4.6), out="trajectory.pdf", ylim=(0.70, 1.0), legend_loc="lower left"):
     tr = json.load(open("results/digits_trajectory.json"))
-    fig, ax = plt.subplots(3, 1, figsize=(3.4, 4.6), sharex=True,
+    fig, ax = plt.subplots(3, 1, figsize=figsize, sharex=True,
                            gridspec_kw={"height_ratios": [1.3, 0.8, 1.1], "hspace": 0.32})
     t0 = tr["shift_at"]
     # (a) accuracy
@@ -40,8 +40,8 @@ def fig_trajectory():
     est = [(t, e) for t, e in tr["two-tier, relative trigger"]["atc"] if e is not None]
     a.plot([t for t, _ in est], [e for _, e in est], color=C["two"], lw=1.0,
            label="Tier 1 label-free estimate (ATC)")
-    a.set_ylim(0.70, 1.0); a.set_ylabel("accuracy")
-    a.legend(loc="lower left", fontsize=6.5, handlelength=1.6)
+    a.set_ylim(*ylim); a.set_ylabel("accuracy")
+    a.legend(loc=legend_loc, fontsize=6.5, handlelength=1.6)
     a.set_title("(a) Deployed accuracy drops; the declaration stays", loc="left")
     # (b) audit rate
     b = ax[1]
@@ -72,15 +72,15 @@ def fig_trajectory():
     c.set_yscale("log"); c.set_ylim(0.05, 200); c.set_ylabel("wealth $M_n$ (log)")
     c.set_xlabel("deployment item"); c.set_xlim(0, 20000)
     c.set_title("(c) The labeled test decides", loc="left")
-    fig.savefig(f"{OUT}/trajectory.pdf")
+    fig.savefig(f"{OUT}/{out}")
     plt.close(fig)
 
 
-def fig_effect_size():
+def fig_effect_size(figsize=(3.4, 1.75), out="effect_size.pdf"):
     df = pd.read_csv("results/effect_size.csv")
     names = {"two-tier 1% -> 10%": "two", "fixed 1%": "fix1", "fixed 10%": "fix10"}
     labels = {"two": "two-tier 1% to 10%", "fix1": "fixed 1%", "fix10": "fixed 10%"}
-    fig, ax = plt.subplots(1, 2, figsize=(3.4, 1.75), gridspec_kw={"wspace": 0.45})
+    fig, ax = plt.subplots(1, 2, figsize=figsize, gridspec_kw={"wspace": 0.45})
     for pname, key in names.items():
         d = df[df.policy == pname].sort_values("post_accuracy")
         x = d.post_accuracy * 100
@@ -94,10 +94,13 @@ def fig_effect_size():
     fig.legend(handles, [labels[k] for k in names.values()], loc="upper center", ncol=3,
                fontsize=6.5, bbox_to_anchor=(0.5, 1.1), handlelength=2.2)
     ax[0].set_title("(a) Detection speed", loc="left"); ax[1].set_title("(b) Labeling cost", loc="left")
-    fig.savefig(f"{OUT}/effect_size.pdf")
+    fig.savefig(f"{OUT}/{out}")
     plt.close(fig)
 
 
 if __name__ == "__main__":
     fig_trajectory(); fig_effect_size()
+    # single-column versions for the ACM Small (CS&Law) layout
+    fig_trajectory(figsize=(4.4, 5.0), out="trajectory_wide.pdf", ylim=(0.62, 1.0), legend_loc="lower right")
+    fig_effect_size(figsize=(5.0, 2.0), out="effect_size_wide.pdf")
     print(os.listdir(OUT))
